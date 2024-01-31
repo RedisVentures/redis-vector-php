@@ -1,0 +1,44 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup PHP with Composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: xdebug
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          dependency-versions: highest
+
+      - name: Run unit tests
+        run:  vendor/bin/phpunit --testsuite Unit --verbose --coverage-clover build/logs/clover.xml --coverage-filter ./src
+
+      - name: Upload codecov coverage
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: false
+          files: build/logs/clover.xml
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

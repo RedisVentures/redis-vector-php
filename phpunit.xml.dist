@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+        colors="true"
+        processIsolation="false"
+        stopOnError="false"
+        stopOnFailure="false"
+        beStrictAboutTestsThatDoNotTestAnything="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit/</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+        </report>
+    </coverage>
+</phpunit>
