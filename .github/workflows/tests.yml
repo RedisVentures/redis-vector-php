@@ -40,3 +40,5 @@ jobs:
           fail_ci_if_error: false
           files: build/logs/clover.xml
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
