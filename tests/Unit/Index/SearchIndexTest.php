@@ -151,7 +151,7 @@ class SearchIndexTest extends TestCase
             ->shouldReceive('ftdropindex')
             ->once()
             ->with('foobar')
-            ->andReturn(new ServerException('Error'));
+            ->andThrow(ServerException::class);
 
         $this->mockFactory
             ->shouldReceive('createIndexBuilder')
@@ -253,6 +253,8 @@ class SearchIndexTest extends TestCase
         $expectedSchema = [
             new TextField('foo'),
         ];
+        $schema = $this->schema;
+        $schema['index']['prefix'] = $prefix;
 
         $this->mockFactory
             ->shouldReceive('createIndexBuilder')
@@ -269,7 +271,7 @@ class SearchIndexTest extends TestCase
         $this->mockIndexBuilder
             ->shouldReceive('prefix')
             ->once()
-            ->with($prefix)
+            ->with([$prefix])
             ->andReturn($this->mockIndexBuilder);
 
         $this->mockClient
@@ -278,7 +280,7 @@ class SearchIndexTest extends TestCase
             ->with('foobar', $expectedSchema, $this->mockIndexBuilder)
             ->andReturn(new Status('OK'));
 
-        $index = new SearchIndex($this->mockClient, $this->schema, $this->mockFactory);
+        $index = new SearchIndex($this->mockClient, $schema, $this->mockFactory);
 
         $this->assertTrue($index->create());
     }

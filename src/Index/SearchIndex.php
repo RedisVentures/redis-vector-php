@@ -61,7 +61,7 @@ class SearchIndex implements IndexInterface
         }
 
         if (array_key_exists('prefix', $this->schema['index'])) {
-            $createArguments = $createArguments->prefix($this->schema['index']['prefix']);
+            $createArguments = $createArguments->prefix([$this->schema['index']['prefix']]);
         }
 
         $schema = [];
