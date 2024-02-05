@@ -23,7 +23,7 @@ jobs:
       - name: Setup PHP with Composer and extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.1'
           coverage: xdebug
 
       - name: Install Composer dependencies
@@ -32,7 +32,7 @@ jobs:
           dependency-versions: highest
 
       - name: Run unit tests
-        run:  vendor/bin/phpunit --testsuite Unit --verbose --coverage-clover build/logs/clover.xml --coverage-filter ./src
+        run:  vendor/bin/phpunit --testsuite Unit --coverage-clover build/logs/clover.xml --coverage-filter ./src
 
       - name: Upload codecov coverage
         uses: codecov/codecov-action@v3
