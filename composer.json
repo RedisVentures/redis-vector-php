@@ -4,11 +4,13 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php" : "^8.0",
+        "php" : "^8.1",
         "guzzlehttp/guzzle": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "predis/predis": "^2.2.0",
+        "mockery/mockery": "^1.6"
     },
     "autoload": {
         "psr-4": {
