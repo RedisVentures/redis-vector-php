@@ -32,7 +32,7 @@ jobs:
           dependency-versions: highest
 
       - name: Run unit tests
-        run:  vendor/bin/phpunit --testsuite Unit --verbose --coverage-clover build/logs/clover.xml --coverage-filter ./src
+        run:  vendor/bin/phpunit --testsuite Unit --coverage-clover build/logs/clover.xml --coverage-filter ./src
 
       - name: Upload codecov coverage
         uses: codecov/codecov-action@v3
