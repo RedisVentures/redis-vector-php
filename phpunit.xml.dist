@@ -21,6 +21,16 @@
         </report>
     </coverage>
 
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src</directory>
+            <exclude>
+                <directory>./tests</directory>
+                <directory>./vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
     <php>
         <!-- Redis -->
         <const name="REDIS_SERVER_HOST" value="127.0.0.1" />
