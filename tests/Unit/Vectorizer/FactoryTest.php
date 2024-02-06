@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Vectorizer;
+namespace Vladvildanov\PredisVl\Unit\Vectorizer;
 
 use Exception;
 use PHPUnit\Framework\TestCase;

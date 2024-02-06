@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace Vladvildanov\PredisVl\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Vladvildanov\PredisVl\VectorHelper;

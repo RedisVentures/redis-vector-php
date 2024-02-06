@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Index;
+namespace Vladvildanov\PredisVl\Unit\Index;
 
 use Exception;
 use Mockery;

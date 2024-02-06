@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Enum;
+namespace Vladvildanov\PredisVl\Unit\Enum;
 
 use PHPUnit\Framework\TestCase;
 use Predis\Command\Argument\Search\SchemaFields\NumericField;
