@@ -15,21 +15,17 @@
         </testsuite>
     </testsuites>
 
+    <source>
+        <include>
+            <directory>./src</directory>
+        </include>
+    </source>
+
     <coverage>
         <report>
             <clover outputFile="build/logs/clover.xml"/>
         </report>
     </coverage>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src</directory>
-            <exclude>
-                <directory>./tests</directory>
-                <directory>./vendor</directory>
-            </exclude>
-        </whitelist>
-    </filter>
 
     <php>
         <!-- Redis -->
