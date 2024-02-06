@@ -17,6 +17,11 @@
             "Vladvildanov\\PredisVl\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Vladvildanov\\PredisVl\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "vladvildanov",
