@@ -94,7 +94,7 @@ class SearchIndexTest extends FeatureTestCase
 
         $this->assertEquals(
             'OK',
-            $index->load('foo:1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
+            $index->load('1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
         );
 
         $searchResult = $this->client->ftsearch($this->hashSchema['index']['name'], '*');
@@ -125,7 +125,7 @@ class SearchIndexTest extends FeatureTestCase
 
         $this->assertEquals(
             'OK',
-            $index->load('foo:1', '{"id":"1","count":10,"id_embeddings":[0.000001, 0.000002, 0.000003]}')
+            $index->load('1', '{"id":"1","count":10,"id_embeddings":[0.000001, 0.000002, 0.000003]}')
         );
 
         $searchResult = $this->client->ftsearch($this->jsonSchema['index']['name'], '*');
@@ -156,7 +156,7 @@ class SearchIndexTest extends FeatureTestCase
 
         $this->assertEquals(
             'OK',
-            $index->load('foo:1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
+            $index->load('1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
         );
 
         $searchResult = $this->client->ftsearch($this->hashSchema['index']['name'], '*');
@@ -177,7 +177,7 @@ class SearchIndexTest extends FeatureTestCase
 
         $this->assertEquals(
             'OK',
-            $index->load('foo:1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
+            $index->load('1', ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])])
         );
 
         $this->assertEquals(
@@ -195,7 +195,7 @@ class SearchIndexTest extends FeatureTestCase
 
         $this->assertEquals(
             'OK',
-            $index->load('foo:1', '{"id":"1","count":10,"id_embeddings":[0.000001, 0.000002, 0.000003]}')
+            $index->load('1', '{"id":"1","count":10,"id_embeddings":[0.000001, 0.000002, 0.000003]}')
         );
 
         $this->assertEquals(
