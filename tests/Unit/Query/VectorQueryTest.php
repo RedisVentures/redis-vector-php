@@ -5,8 +5,10 @@ namespace Vladvildanov\PredisVl\Unit\Query;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Predis\Command\Argument\Search\SearchArguments;
+use Vladvildanov\PredisVl\Enum\Condition;
 use Vladvildanov\PredisVl\FactoryInterface;
 use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
+use Vladvildanov\PredisVl\Query\Filter\TagFilter;
 use Vladvildanov\PredisVl\Query\VectorQuery;
 use Vladvildanov\PredisVl\VectorHelper;
 
@@ -26,6 +28,26 @@ class VectorQueryTest extends TestCase
     {
         $this->mockFilter = Mockery::mock(FilterInterface::class);
         $this->mockFactory = Mockery::mock(FactoryInterface::class);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetFilter(): void
+    {
+        $filter = new TagFilter('foo', Condition::equal, 'bar');
+
+        $query = new VectorQuery(
+            [0.01, 0.02, 0.03],
+            'foo',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $this->assertSame($filter, $query->getFilter());
     }
 
     /**
