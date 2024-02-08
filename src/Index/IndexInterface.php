@@ -2,6 +2,8 @@
 
 namespace Vladvildanov\PredisVl\Index;
 
+use Vladvildanov\PredisVl\Query\QueryInterface;
+
 interface IndexInterface
 {
     /**
@@ -35,4 +37,12 @@ interface IndexInterface
      * @return mixed
      */
     public function fetch(string $id): mixed;
+
+    /**
+     * Query for a data from current index.
+     *
+     * @param QueryInterface $query
+     * @return mixed
+     */
+    public function query(QueryInterface $query);
 }

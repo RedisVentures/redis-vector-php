@@ -9,10 +9,12 @@ use Predis\Client;
 use Predis\Command\Argument\Search\CreateArguments;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
 use Predis\Command\Argument\Search\SchemaFields\VectorField;
+use Predis\Command\Argument\Search\SearchArguments;
 use Predis\Response\ServerException;
 use Predis\Response\Status;
 use Vladvildanov\PredisVl\FactoryInterface;
 use Vladvildanov\PredisVl\Index\SearchIndex;
+use Vladvildanov\PredisVl\Query\VectorQuery;
 
 class SearchIndexTest extends TestCase
 {
@@ -458,6 +460,25 @@ class SearchIndexTest extends TestCase
     /**
      * @return void
      */
+    public function testLoadWithPrefix(): void
+    {
+        $schema = $this->schema;
+        $schema['index']['prefix'] = 'foo:';
+
+        $this->mockClient
+            ->shouldReceive('hmset')
+            ->once()
+            ->with('foo:key', ['key' => 'value'])
+            ->andReturn(new Status('OK'));
+
+        $index = new SearchIndex($this->mockClient, $schema);
+
+        $this->assertTrue($index->load('key',['key' => 'value']));
+    }
+
+    /**
+     * @return void
+     */
     public function testFetchWithPrefix(): void
     {
         $schema = $this->schema;
@@ -530,6 +551,42 @@ class SearchIndexTest extends TestCase
                 'foo' => ['type' => 'tag']
             ]
         ], $index->getSchema());
+    }
+
+    /**
+     * @return void
+     */
+    public function testQuery(): void
+    {
+        $searchArguments = new SearchArguments();
+
+        $mockFactory = Mockery::mock(FactoryInterface::class);
+        $mockFactory
+            ->shouldReceive('createSearchBuilder')
+            ->once()
+            ->withNoArgs()
+            ->andReturn($searchArguments);
+
+        $query = new VectorQuery(
+            [0.01, 0.02, 0.03],
+            'vector',
+            null,
+            10,
+            true,
+            2,
+            null,
+            $mockFactory
+        );
+
+        $this->mockClient
+            ->shouldReceive('ftsearch')
+            ->once()
+            ->with($this->schema['index']['name'], $query->getQueryString(), $searchArguments)
+            ->andReturn(['foo', 'bar']);
+
+        $index = new SearchIndex($this->mockClient, $this->schema);
+
+        $this->assertSame(['foo', 'bar'], $index->query($query));
     }
 
     public static function validateSchemaProvider(): array

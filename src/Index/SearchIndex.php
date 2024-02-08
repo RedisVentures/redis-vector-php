@@ -10,6 +10,7 @@ use Vladvildanov\PredisVl\Enum\SearchField;
 use Vladvildanov\PredisVl\Enum\StorageType;
 use Vladvildanov\PredisVl\Factory;
 use Vladvildanov\PredisVl\FactoryInterface;
+use Vladvildanov\PredisVl\Query\QueryInterface;
 
 class SearchIndex implements IndexInterface
 {
@@ -94,6 +95,10 @@ class SearchIndex implements IndexInterface
      */
     public function load(string $key, mixed $values): bool
     {
+        $key = (array_key_exists('prefix', $this->schema['index']))
+            ? $this->schema['index']['prefix'] . $key
+            : $key;
+
         if (is_string($values)) {
             $response = $this->client->jsonset($key, '$', $values);
         } elseif (is_array($values)) {
@@ -120,6 +125,18 @@ class SearchIndex implements IndexInterface
         }
 
         return $this->client->hgetall($key);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function query(QueryInterface $query)
+    {
+        return $this->client->ftsearch(
+            $this->schema['index']['name'],
+            $query->getQueryString(),
+            $query->getSearchArguments()
+        );
     }
 
     /**
