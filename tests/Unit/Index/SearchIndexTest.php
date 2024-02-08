@@ -582,11 +582,18 @@ class SearchIndexTest extends TestCase
             ->shouldReceive('ftsearch')
             ->once()
             ->with($this->schema['index']['name'], $query->getQueryString(), $searchArguments)
-            ->andReturn(['foo', 'bar']);
+            ->andReturn([1, 'foo:bar', 0, ['foo', 'bar']]);
 
         $index = new SearchIndex($this->mockClient, $this->schema);
 
-        $this->assertSame(['foo', 'bar'], $index->query($query));
+        $this->assertSame(
+            [
+                'count' => 1,
+                'results' => [
+                    'foo:bar' => ['score' => 0, 'foo' => 'bar']
+                ],
+            ], $index->query($query)
+        );
     }
 
     public static function validateSchemaProvider(): array
