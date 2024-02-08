@@ -132,11 +132,37 @@ class SearchIndex implements IndexInterface
      */
     public function query(QueryInterface $query)
     {
-        return $this->client->ftsearch(
+        $response = $this->client->ftsearch(
             $this->schema['index']['name'],
             $query->getQueryString(),
             $query->getSearchArguments()
         );
+
+        $processedResponse = ['count' => $response[0]];
+        $withScores = in_array('WITHSCORES', $query->getSearchArguments()->toArray(), true);
+
+        if (count($response) > 1) {
+            for ($i = 1, $iMax = count($response); $i < $iMax; $i++) {
+                $processedResponse['results'][$response[$i]] = [];
+
+                // Different return type depends on WITHSCORE condition
+                if ($withScores) {
+                    $processedResponse['results'][$response[$i]]['score'] = $response[$i + 1];
+                    $step = 2;
+                } else {
+                    $step = 1;
+                }
+
+                for ($j = 0, $jMax = count($response[$i + $step]); $j < $jMax; $j++) {
+                    $processedResponse['results'][$response[$i]][$response[$i + $step][$j]] = $response[$i + $step][$j + 1];
+                    ++$j;
+                }
+
+                $i += $step;
+            }
+        }
+
+        return $processedResponse;
     }
 
     /**
