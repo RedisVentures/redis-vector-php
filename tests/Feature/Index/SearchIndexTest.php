@@ -8,6 +8,7 @@ use Vladvildanov\PredisVl\Feature\FeatureTestCase;
 use Predis\Client;
 use Vladvildanov\PredisVl\Index\SearchIndex;
 use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
+use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
 use Vladvildanov\PredisVl\Query\Filter\TagFilter;
 use Vladvildanov\PredisVl\Query\VectorQuery;
 use Vladvildanov\PredisVl\VectorHelper;
@@ -357,6 +358,75 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
+     * @dataProvider vectorNumericFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     */
+    public function testVectorQueryHashWithNumericFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+            ],
+            'fields' => [
+                'id' => [
+                    'type' => 'text',
+                ],
+                'price' => [
+                    'type' => 'numeric',
+                ],
+                'description' => [
+                    'type' => 'text',
+                ],
+                'description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine'
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        for ($i = 1; $i < 5; $i++) {
+            $this->assertTrue($index->load(
+                $i,
+                [
+                    'id' => $i, 'price' => $i * 10, 'description' => 'Foobar foobar',
+                    'description_embedding' => VectorHelper::toBytes([$i / 1000, ($i + 1) / 1000, ($i + 2) / 1000])
+                ])
+            );
+        }
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'description_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($expectedResponse['results'] as $key => $value) {
+            $this->assertSame(
+                $expectedResponse['results'][$key]['price'],
+                (int) $response['results'][$key]['price']
+            );
+        }
+    }
+
+    /**
      * @return void
      */
     public function testVectorQueryHashIndexReturnsCorrectFields(): void
@@ -502,6 +572,83 @@ class SearchIndexTest extends FeatureTestCase
             $this->assertSame(
                 $expectedResponse['results'][$key]['vector_score'],
                 round((float) $response['results'][$key]['vector_score'], 2)
+            );
+        }
+    }
+
+    /**
+     * @dataProvider vectorNumericFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexWithNumericFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'text',
+                ],
+                '$.price' => [
+                    'type' => 'numeric',
+                    'alias' => 'price',
+                ],
+                '$.description' => [
+                    'type' => 'text',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        for ($i = 1; $i < 5; $i++) {
+            $json = json_encode([
+                'id' => (string)$i, 'price' => $i * 10, 'description' => 'Foobar foobar',
+                'description_embedding' => [$i / 1000, ($i + 1) / 1000, ($i + 2) / 1000],
+            ], JSON_THROW_ON_ERROR);
+
+            $this->assertTrue($index->load(
+                $i,
+                $json
+            ));
+        }
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($response['results'] as $key => $value) {
+            $decodedResponse = json_decode($value['$'], true, 512, JSON_THROW_ON_ERROR);
+
+            $this->assertSame(
+                $expectedResponse['results'][$key]['price'],
+                (int) $decodedResponse['price']
             );
         }
     }
@@ -760,6 +907,130 @@ class SearchIndexTest extends FeatureTestCase
                 ]),
                 [
                     'count' => 0,
+                ]
+            ],
+        ];
+    }
+
+    public static function vectorNumericFilterProvider(): array
+    {
+        return [
+            'default' => [
+                null,
+                [
+                    'count' => 4,
+                    'results' => [
+                        'product:1' => [
+                            'price' => 10,
+                        ],
+                        'product:2' => [
+                            'price' => 20,
+                        ],
+                        'product:3' => [
+                            'price' => 30,
+                        ],
+                        'product:4' => [
+                            'price' => 40,
+                        ],
+                    ],
+                ]
+            ],
+            'with_equal' => [
+                new NumericFilter('price', Condition::equal, 30),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:3' => [
+                            'price' => 30,
+                        ],
+                    ],
+                ]
+            ],
+            'with_not_equal' => [
+                new NumericFilter('price', Condition::notEqual, 30),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:1' => [
+                            'price' => 10,
+                        ],
+                        'product:2' => [
+                            'price' => 20,
+                        ],
+                        'product:4' => [
+                            'price' => 40,
+                        ],
+                    ],
+                ]
+            ],
+            'with_greater_than' => [
+                new NumericFilter('price', Condition::greaterThan, 20),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:3' => [
+                            'price' => 30,
+                        ],
+                        'product:4' => [
+                            'price' => 40,
+                        ],
+                    ],
+                ]
+            ],
+            'with_greater_than_or_equal' => [
+                new NumericFilter('price', Condition::greaterThanOrEqual, 20),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:2' => [
+                            'price' => 20,
+                        ],
+                        'product:3' => [
+                            'price' => 30,
+                        ],
+                        'product:4' => [
+                            'price' => 40,
+                        ],
+                    ],
+                ]
+            ],
+            'with_lower_than' => [
+                new NumericFilter('price', Condition::lowerThan, 20),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:1' => [
+                            'price' => 10,
+                        ],
+                    ],
+                ]
+            ],
+            'with_lower_than_or_equal' => [
+                new NumericFilter('price', Condition::lowerThanOrEqual, 20),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:1' => [
+                            'price' => 10,
+                        ],
+                        'product:2' => [
+                            'price' => 20,
+                        ],
+                    ],
+                ]
+            ],
+            'with_between' => [
+                new NumericFilter('price', Condition::between, [20, 30]),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:2' => [
+                            'price' => 20,
+                        ],
+                        'product:3' => [
+                            'price' => 30,
+                        ],
+                    ],
                 ]
             ],
         ];

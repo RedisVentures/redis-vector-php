@@ -16,7 +16,7 @@ class TagFilterTest extends TestCase
      * @param string $expectedQuery
      * @return void
      */
-    public function testToQuery(Condition $condition, $value, string $expectedQuery): void
+    public function testToExpression(Condition $condition, $value, string $expectedQuery): void
     {
         $filter = new TagFilter('foo', $condition, $value);
 
