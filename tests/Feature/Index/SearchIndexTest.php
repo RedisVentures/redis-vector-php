@@ -280,7 +280,7 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
-     * @dataProvider vectorQueryTagFilterProvider
+     * @dataProvider vectorTagFilterProvider
      * @param FilterInterface|null $filter
      * @param array $expectedResponse
      * @return void
@@ -421,6 +421,7 @@ class SearchIndexTest extends FeatureTestCase
 
     /**
      * @return void
+     * @throws \JsonException
      */
     public function testVectorQueryJsonIndexReturnsCorrectVectorScore(): void
     {
@@ -505,6 +506,74 @@ class SearchIndexTest extends FeatureTestCase
         }
     }
 
+    /**
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexReturnsCorrectFields(): void
+    {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'text',
+                ],
+                '$.category' => [
+                    'type' => 'tag',
+                ],
+                '$.description' => [
+                    'type' => 'text',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        for ($i = 1; $i < 5; $i++) {
+            $json = json_encode([
+                'id' => (string)$i, 'category' => ($i % 2 === 0) ? 'foo' : 'bar', 'description' => 'Foobar foobar',
+                'description_embedding' => [$i / 1000, ($i + 1) / 1000, ($i + 2) / 1000],
+            ], JSON_THROW_ON_ERROR);
+
+            $this->assertTrue($index->load(
+                $i,
+                $json
+            ));
+        }
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            ['$.id', '$.category'],
+            10,
+            true,
+            2,
+            null
+        );
+
+        $response = $index->query($query);
+        $this->assertSame(4, $response['count']);
+
+        foreach ($response['results'] as $value) {
+            $this->assertNotTrue(array_key_exists('$.description', $value));
+            $this->assertNotTrue(array_key_exists('$.description_embedding', $value));
+            $this->assertNotTrue(array_key_exists('$.vector_score', $value));
+        }
+    }
+
     public static function vectorQueryScoreProvider(): array
     {
         return [
@@ -547,7 +616,7 @@ class SearchIndexTest extends FeatureTestCase
         ];
     }
 
-    public static function vectorQueryTagFilterProvider(): array
+    public static function vectorTagFilterProvider(): array
     {
         return [
             'default' => [
