@@ -554,9 +554,13 @@ class SearchIndexTest extends TestCase
     }
 
     /**
+     * @dataProvider queryProvider
+     * @param bool $returnScore
+     * @param array $expectedResponse
+     * @param array $expectedProcessedResponse
      * @return void
      */
-    public function testQuery(): void
+    public function testQuery(bool $returnScore, array $expectedResponse, array $expectedProcessedResponse): void
     {
         $searchArguments = new SearchArguments();
 
@@ -572,7 +576,7 @@ class SearchIndexTest extends TestCase
             'vector',
             null,
             10,
-            true,
+            $returnScore,
             2,
             null,
             $mockFactory
@@ -582,18 +586,37 @@ class SearchIndexTest extends TestCase
             ->shouldReceive('ftsearch')
             ->once()
             ->with($this->schema['index']['name'], $query->getQueryString(), $searchArguments)
-            ->andReturn([1, 'foo:bar', 0, ['foo', 'bar']]);
+            ->andReturn($expectedResponse);
 
         $index = new SearchIndex($this->mockClient, $this->schema);
 
-        $this->assertSame(
-            [
-                'count' => 1,
-                'results' => [
-                    'foo:bar' => ['score' => 0, 'foo' => 'bar']
-                ],
-            ], $index->query($query)
-        );
+        $this->assertSame($expectedProcessedResponse, $index->query($query));
+    }
+
+    public static function queryProvider(): array
+    {
+        return [
+            'return_score' => [
+                true,
+                [1, 'foo:bar', 0, ['foo', 'bar']],
+                [
+                    'count' => 1,
+                    'results' => [
+                        'foo:bar' => ['score' => 0, 'foo' => 'bar']
+                    ],
+                ]
+            ],
+            'no_return_score' => [
+                false,
+                [1, 'foo:bar', ['foo', 'bar']],
+                [
+                    'count' => 1,
+                    'results' => [
+                        'foo:bar' => ['foo' => 'bar']
+                    ],
+                ]
+            ],
+        ];
     }
 
     public static function validateSchemaProvider(): array
