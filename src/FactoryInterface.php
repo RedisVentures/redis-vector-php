@@ -3,6 +3,7 @@
 namespace Vladvildanov\PredisVl;
 
 use Predis\Command\Argument\Search\CreateArguments;
+use Predis\Command\Argument\Search\SearchArguments;
 
 interface FactoryInterface
 {
@@ -12,4 +13,11 @@ interface FactoryInterface
      * @return CreateArguments
      */
     public function createIndexBuilder(): CreateArguments;
+
+    /**
+     * Creates builder object for search command arguments.
+     *
+     * @return SearchArguments
+     */
+    public function createSearchBuilder(): SearchArguments;
 }

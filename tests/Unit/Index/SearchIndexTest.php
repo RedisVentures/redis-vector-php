@@ -9,10 +9,12 @@ use Predis\Client;
 use Predis\Command\Argument\Search\CreateArguments;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
 use Predis\Command\Argument\Search\SchemaFields\VectorField;
+use Predis\Command\Argument\Search\SearchArguments;
 use Predis\Response\ServerException;
 use Predis\Response\Status;
 use Vladvildanov\PredisVl\FactoryInterface;
 use Vladvildanov\PredisVl\Index\SearchIndex;
+use Vladvildanov\PredisVl\Query\VectorQuery;
 
 class SearchIndexTest extends TestCase
 {
@@ -458,6 +460,25 @@ class SearchIndexTest extends TestCase
     /**
      * @return void
      */
+    public function testLoadWithPrefix(): void
+    {
+        $schema = $this->schema;
+        $schema['index']['prefix'] = 'foo:';
+
+        $this->mockClient
+            ->shouldReceive('hmset')
+            ->once()
+            ->with('foo:key', ['key' => 'value'])
+            ->andReturn(new Status('OK'));
+
+        $index = new SearchIndex($this->mockClient, $schema);
+
+        $this->assertTrue($index->load('key',['key' => 'value']));
+    }
+
+    /**
+     * @return void
+     */
     public function testFetchWithPrefix(): void
     {
         $schema = $this->schema;
@@ -530,6 +551,72 @@ class SearchIndexTest extends TestCase
                 'foo' => ['type' => 'tag']
             ]
         ], $index->getSchema());
+    }
+
+    /**
+     * @dataProvider queryProvider
+     * @param bool $returnScore
+     * @param array $expectedResponse
+     * @param array $expectedProcessedResponse
+     * @return void
+     */
+    public function testQuery(bool $returnScore, array $expectedResponse, array $expectedProcessedResponse): void
+    {
+        $searchArguments = new SearchArguments();
+
+        $mockFactory = Mockery::mock(FactoryInterface::class);
+        $mockFactory
+            ->shouldReceive('createSearchBuilder')
+            ->once()
+            ->withNoArgs()
+            ->andReturn($searchArguments);
+
+        $query = new VectorQuery(
+            [0.01, 0.02, 0.03],
+            'vector',
+            null,
+            10,
+            $returnScore,
+            2,
+            null,
+            $mockFactory
+        );
+
+        $this->mockClient
+            ->shouldReceive('ftsearch')
+            ->once()
+            ->with($this->schema['index']['name'], $query->getQueryString(), $searchArguments)
+            ->andReturn($expectedResponse);
+
+        $index = new SearchIndex($this->mockClient, $this->schema);
+
+        $this->assertSame($expectedProcessedResponse, $index->query($query));
+    }
+
+    public static function queryProvider(): array
+    {
+        return [
+            'return_score' => [
+                true,
+                [1, 'foo:bar', 0, ['foo', 'bar']],
+                [
+                    'count' => 1,
+                    'results' => [
+                        'foo:bar' => ['score' => 0, 'foo' => 'bar']
+                    ],
+                ]
+            ],
+            'no_return_score' => [
+                false,
+                [1, 'foo:bar', ['foo', 'bar']],
+                [
+                    'count' => 1,
+                    'results' => [
+                        'foo:bar' => ['foo' => 'bar']
+                    ],
+                ]
+            ],
+        ];
     }
 
     public static function validateSchemaProvider(): array
