@@ -15,7 +15,7 @@ class TextFilter extends AbstractFilter
      * "foo bar" - matching values that contains foo AND bar
      * "%foobaz%" - fuzzy search
      *
-     * Condition can be set to "pattern" to perform:index, suffix or infix.
+     * Condition can be set to "pattern" to perform:index, suffix or infix search.
      *
      * @param string $fieldName
      * @param Condition $condition
