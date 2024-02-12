@@ -20,7 +20,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @inheritDoc
      */
-    public function __construct(string $fieldName, Condition $condition, mixed $value)
+    public function __construct(protected string $fieldName, protected Condition $condition, protected mixed $value)
     {
     }
 

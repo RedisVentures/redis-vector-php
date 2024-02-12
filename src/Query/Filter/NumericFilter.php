@@ -12,9 +12,9 @@ class NumericFilter extends AbstractFilter
      * Value can be provided as integer (single value) and in case of between condition as array of two integers.
      */
     public function __construct(
-        private readonly string $fieldName,
-        private readonly Condition $condition,
-        private readonly mixed $value
+        protected string $fieldName,
+        protected Condition $condition,
+        protected mixed $value
     ) {
         parent::__construct($fieldName, $condition, $value);
     }
