@@ -4,10 +4,12 @@ namespace Vladvildanov\PredisVl\Feature\Index;
 
 use Vladvildanov\PredisVl\Enum\Condition;
 use Vladvildanov\PredisVl\Enum\Logical;
+use Vladvildanov\PredisVl\Enum\Unit;
 use Vladvildanov\PredisVl\Feature\FeatureTestCase;
 use Predis\Client;
 use Vladvildanov\PredisVl\Index\SearchIndex;
 use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
+use Vladvildanov\PredisVl\Query\Filter\GeoFilter;
 use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
 use Vladvildanov\PredisVl\Query\Filter\TagFilter;
 use Vladvildanov\PredisVl\Query\Filter\TextFilter;
@@ -516,6 +518,94 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
+     * @dataProvider vectorGeoFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     */
+    public function testVectorQueryHashWithGeoFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+            ],
+            'fields' => [
+                'id' => [
+                    'type' => 'text',
+                ],
+                'price' => [
+                    'type' => 'numeric',
+                ],
+                'location' => [
+                    'type' => 'geo',
+                ],
+                'description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine'
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            [
+                'id' => '1', 'price' => 10, 'location' => '10.111,11.111',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '2',
+            [
+                'id' => '2', 'price' => 20, 'location' => '10.222,11.222',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '3',
+            [
+                'id' => '3', 'price' => 30, 'location' => '10.333,11.333',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '4',
+            [
+                'id' => '4', 'price' => 40, 'location' => '10.444,11.444',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'description_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($expectedResponse['results'] as $key => $value) {
+            $this->assertSame(
+                $expectedResponse['results'][$key]['location'],
+                $response['results'][$key]['location']
+            );
+        }
+    }
+
+    /**
      * @return void
      */
     public function testVectorQueryHashIndexReturnsCorrectFields(): void
@@ -921,6 +1011,100 @@ class SearchIndexTest extends FeatureTestCase
             $this->assertSame(
                 $expectedResponse['results'][$key]['description'],
                 $decodedResponse['description']
+            );
+        }
+    }
+
+    /**
+     * @dataProvider vectorGeoFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexWithGeoFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'text',
+                ],
+                '$.price' => [
+                    'type' => 'numeric',
+                ],
+                '$.location' => [
+                    'type' => 'geo',
+                    'alias' => 'location',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            json_encode([
+                'id' => '1', 'price' => 10, 'location' => ['10.111,11.111'],
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '2',
+            json_encode([
+                'id' => '2', 'price' => 20, 'location' => ['10.222,11.222'],
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '3',
+            json_encode([
+                'id' => '3', 'price' => 30, 'location' => ['10.333,11.333'],
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '4',
+            json_encode([
+                'id' => '4', 'price' => 40, 'location' => ['10.444,11.444'],
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($response['results'] as $key => $value) {
+            $decodedResponse = json_decode($value['$'], true, 512, JSON_THROW_ON_ERROR);
+
+            $this->assertSame(
+                $expectedResponse['results'][$key]['location'],
+                $decodedResponse['location'][0]
             );
         }
     }
@@ -1478,6 +1662,68 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:4' => [
                             'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+        ];
+    }
+
+    public static function vectorGeoFilterProvider(): array
+    {
+        return [
+            'default' => [
+                null,
+                [
+                    'count' => 4,
+                    'results' => [
+                        'product:1' => [
+                            'location' => '10.111,11.111',
+                        ],
+                        'product:2' => [
+                            'location' => '10.222,11.222',
+                        ],
+                        'product:3' => [
+                            'location' => '10.333,11.333',
+                        ],
+                        'product:4' => [
+                            'location' => '10.444,11.444',
+                        ],
+                    ]
+                ]
+            ],
+            'equal_radius' => [
+                new GeoFilter(
+                    'location',
+                    Condition::equal,
+                    ['lon' => 10.000, 'lat' => 12.000, 'radius' => 85, 'unit' => Unit::kilometers]
+                ),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:3' => [
+                            'location' => '10.333,11.333',
+                        ],
+                        'product:4' => [
+                            'location' => '10.444,11.444',
+                        ],
+                    ]
+                ]
+            ],
+            'not_equal_radius' => [
+                new GeoFilter(
+                    'location',
+                    Condition::notEqual,
+                    ['lon' => 10.000, 'lat' => 12.000, 'radius' => 85, 'unit' => Unit::kilometers]
+                ),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:1' => [
+                            'location' => '10.111,11.111',
+                        ],
+                        'product:2' => [
+                            'location' => '10.222,11.222',
                         ],
                     ]
                 ]

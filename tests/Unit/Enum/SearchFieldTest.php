@@ -3,6 +3,7 @@
 namespace Vladvildanov\PredisVl\Unit\Enum;
 
 use PHPUnit\Framework\TestCase;
+use Predis\Command\Argument\Search\SchemaFields\GeoField;
 use Predis\Command\Argument\Search\SchemaFields\NumericField;
 use Predis\Command\Argument\Search\SchemaFields\TagField;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
@@ -27,7 +28,7 @@ class SearchFieldTest extends TestCase
      */
     public function testNames(): void
     {
-        $this->assertSame(['tag', 'text', 'numeric', 'vector'], SearchField::names());
+        $this->assertSame(['tag', 'text', 'numeric', 'vector', 'geo'], SearchField::names());
     }
 
     /**
@@ -48,6 +49,7 @@ class SearchFieldTest extends TestCase
             'text' => [SearchField::text, TextField::class],
             'numeric' => [SearchField::numeric, NumericField::class],
             'vector' => [SearchField::vector, VectorField::class],
+            'geo' => [SearchField::geo, GeoField::class],
         ];
     }
 
@@ -58,6 +60,7 @@ class SearchFieldTest extends TestCase
             ['text', SearchField::text],
             ['numeric', SearchField::numeric],
             ['vector', SearchField::vector],
+            ['geo', SearchField::geo],
         ];
     }
 }
