@@ -19,16 +19,15 @@ class GeoFilter extends AbstractFilter
      * @param array{lon: float, lat: float, radius: int, unit: Unit} $value
      */
     public function __construct(
-        string $fieldName,
-        Condition $condition,
+        protected readonly string    $fieldName,
+        protected readonly Condition $condition,
         #[ArrayShape([
             'lon' => 'float',
             'lat' => 'float',
             'radius' => 'int',
             'unit' => Unit::class
-        ])] $value
+        ])] protected readonly array $value
     ) {
-        parent::__construct($fieldName, $condition, $value);
     }
 
     /**

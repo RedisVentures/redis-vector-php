@@ -2,7 +2,6 @@
 
 namespace Vladvildanov\PredisVl\Query\Filter;
 
-use Vladvildanov\PredisVl\Enum\Condition;
 
 abstract class AbstractFilter implements FilterInterface
 {
@@ -16,13 +15,6 @@ abstract class AbstractFilter implements FilterInterface
         '==' => '',
         '!=' => '-'
     ];
-
-    /**
-     * @inheritDoc
-     */
-    public function __construct(protected string $fieldName, protected Condition $condition, protected mixed $value)
-    {
-    }
 
     /**
      * @inheritDoc

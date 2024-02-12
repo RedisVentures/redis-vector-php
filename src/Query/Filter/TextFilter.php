@@ -21,9 +21,8 @@ class TextFilter extends AbstractFilter
      * @param Condition $condition
      * @param string $value
      */
-    public function __construct(string $fieldName, Condition $condition, $value)
+    public function __construct(protected string $fieldName, protected Condition $condition, protected string $value)
     {
-        parent::__construct($fieldName, $condition, $value);
     }
 
     /**

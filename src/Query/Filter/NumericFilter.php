@@ -16,7 +16,6 @@ class NumericFilter extends AbstractFilter
         protected Condition $condition,
         protected mixed $value
     ) {
-        parent::__construct($fieldName, $condition, $value);
     }
 
     /**
