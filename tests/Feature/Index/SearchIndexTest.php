@@ -10,6 +10,7 @@ use Vladvildanov\PredisVl\Index\SearchIndex;
 use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
 use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
 use Vladvildanov\PredisVl\Query\Filter\TagFilter;
+use Vladvildanov\PredisVl\Query\Filter\TextFilter;
 use Vladvildanov\PredisVl\Query\VectorQuery;
 use Vladvildanov\PredisVl\VectorHelper;
 
@@ -427,6 +428,94 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
+     * @dataProvider vectorTextFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     */
+    public function testVectorQueryHashWithTextFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+            ],
+            'fields' => [
+                'id' => [
+                    'type' => 'text',
+                ],
+                'price' => [
+                    'type' => 'numeric',
+                ],
+                'description' => [
+                    'type' => 'text',
+                ],
+                'description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine'
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            [
+                'id' => '1', 'price' => 10, 'description' => 'foobar',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '2',
+            [
+                'id' => '2', 'price' => 20, 'description' => 'barfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '3',
+            [
+                'id' => '3', 'price' => 30, 'description' => 'foobar barfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '4',
+            [
+                'id' => '4', 'price' => 40, 'description' => 'barfoo bazfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'description_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($expectedResponse['results'] as $key => $value) {
+            $this->assertSame(
+                $expectedResponse['results'][$key]['description'],
+                $response['results'][$key]['description']
+            );
+        }
+    }
+
+    /**
      * @return void
      */
     public function testVectorQueryHashIndexReturnsCorrectFields(): void
@@ -738,6 +827,100 @@ class SearchIndexTest extends FeatureTestCase
             $this->assertSame(
                 $expectedResponse['results'][$key]['price'],
                 (int) $decodedResponse['price']
+            );
+        }
+    }
+
+    /**
+     * @dataProvider vectorTextFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexWithTextFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'text',
+                ],
+                '$.price' => [
+                    'type' => 'numeric',
+                ],
+                '$.description' => [
+                    'type' => 'text',
+                    'alias' => 'description',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            json_encode([
+                'id' => '1', 'price' => 10, 'description' => 'foobar',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '2',
+            json_encode([
+                'id' => '2', 'price' => 20, 'description' => 'barfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '3',
+            json_encode([
+                'id' => '3', 'price' => 30, 'description' => 'foobar barfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '4',
+            json_encode([
+                'id' => '4', 'price' => 40, 'description' => 'barfoo bazfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($response['results'] as $key => $value) {
+            $decodedResponse = json_decode($value['$'], true, 512, JSON_THROW_ON_ERROR);
+
+            $this->assertSame(
+                $expectedResponse['results'][$key]['description'],
+                $decodedResponse['description']
             );
         }
     }
@@ -1125,6 +1308,178 @@ class SearchIndexTest extends FeatureTestCase
                             'price' => 30,
                         ],
                     ],
+                ]
+            ],
+        ];
+    }
+
+    public static function vectorTextFilterProvider(): array
+    {
+        return [
+            'default' => [
+                null,
+                [
+                    'count' => 4,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'empty_value' => [
+                new TextFilter('description', Condition::equal, ''),
+                [
+                    'count' => 4,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'matching_single' => [
+                new TextFilter('description', Condition::equal, 'foobar'),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'matching_multiple_and' => [
+                new TextFilter('description', Condition::equal, 'foobar barfoo'),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'matching_multiple_or' => [
+                new TextFilter('description', Condition::equal, 'foobar | bazfoo'),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'matching_fuzzy' => [
+                new TextFilter('description', Condition::equal, '%foobaz%'),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'not_matching_single' => [
+                new TextFilter('description', Condition::notEqual, 'foobar'),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'not_matching_multiple_and' => [
+                new TextFilter('description', Condition::notEqual, 'foobar barfoo'),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:1' => [
+                            'description' => 'foobar',
+                        ],
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'not_matching_multiple_or' => [
+                new TextFilter('description', Condition::notEqual, 'foobar | bazfoo'),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'pattern_matching_prefix' => [
+                new TextFilter('description', Condition::pattern, 'baz*'),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'pattern_matching_prefix_and_infix' => [
+                new TextFilter('description', Condition::pattern, 'bar**foo'),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:2' => [
+                            'description' => 'barfoo',
+                        ],
+                        'product:3' => [
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
                 ]
             ],
         ];

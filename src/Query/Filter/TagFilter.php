@@ -17,12 +17,12 @@ class TagFilter extends AbstractFilter
      * @param string|array $value
      */
     public function __construct(
-        private readonly string    $fieldName,
-        private readonly Condition $condition,
+        protected string    $fieldName,
+        protected Condition $condition,
         #[ArrayShape([
             'conjunction' => Logical::class,
             'tags' => 'array',
-        ])] private $value
+        ])] protected mixed $value
     ) {
         parent::__construct($this->fieldName, $this->condition, $this->value);
     }
