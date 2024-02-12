@@ -6,19 +6,8 @@ use JetBrains\PhpStorm\ArrayShape;
 use Vladvildanov\PredisVl\Enum\Condition;
 use Vladvildanov\PredisVl\Enum\Logical;
 
-class TagFilter implements FilterInterface
+class TagFilter extends AbstractFilter
 {
-    /**
-     * Mappings according to Redis Query Syntax
-     *
-     * @link https://redis.io/docs/interact/search-and-query/advanced-concepts/query_syntax/
-     * @var array
-     */
-    private array $conditionMappings = [
-        '==' => '',
-        '!=' => '-'
-    ];
-
     /**
      * Creates tag filter based on condition.
      * Value can be provided as a string (single tag) or as an array (multiple tags).
@@ -35,6 +24,7 @@ class TagFilter implements FilterInterface
             'tags' => 'array',
         ])] private $value
     ) {
+        parent::__construct($this->fieldName, $this->condition, $this->value);
     }
 
     /**

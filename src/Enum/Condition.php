@@ -11,6 +11,9 @@ enum Condition: string
     case equal = '==';
     case notEqual = '!=';
     case greaterThan = '>';
+    case greaterThanOrEqual = '>=';
     case lowerThan = '<';
+    case lowerThanOrEqual = '<=';
     case pattern = '%';
+    case between = 'between';
 }
