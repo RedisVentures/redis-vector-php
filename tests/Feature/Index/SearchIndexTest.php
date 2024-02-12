@@ -577,6 +577,95 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
+     * @dataProvider vectorTagFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexWithTagFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'text',
+                ],
+                '$.category' => [
+                    'type' => 'tag',
+                    'alias' => 'category',
+                ],
+                '$.description' => [
+                    'type' => 'text',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        for ($i = 1; $i < 5; $i++) {
+            $json = json_encode([
+                'id' => (string)$i, 'category' => ($i % 2 === 0) ? 'foo' : 'bar', 'description' => 'Foobar foobar',
+                'description_embedding' => [$i / 1000, ($i + 1) / 1000, ($i + 2) / 1000],
+            ], JSON_THROW_ON_ERROR);
+
+            $this->assertTrue($index->load(
+                $i,
+                $json
+            ));
+        }
+
+        $this->assertTrue($index->load(
+            "5",
+            json_encode([
+                'id' => "5", 'category' => ['foo', 'bar'], 'description' => 'Foobar foobar',
+                'description_embedding' => [0.005, 0.006, 0.007],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            null,
+            10,
+            false,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($response['results'] as $key => $value) {
+            $expectedCategories = ($key === 'product:5')
+                ? $expectedResponse['results'][$key]['category_array']
+                : $expectedResponse['results'][$key]['category'];
+
+            $decodedValue = json_decode($value['$'], true, 512, JSON_THROW_ON_ERROR);
+
+            $this->assertSame(
+                $expectedCategories,
+                $decodedValue['category']
+            );
+        }
+    }
+
+    /**
      * @dataProvider vectorNumericFilterProvider
      * @param FilterInterface|null $filter
      * @param array $expectedResponse
@@ -785,6 +874,7 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:5' => [
                             'category' => 'foo,bar',
+                            'category_array' => ['foo', 'bar'],
                         ],
                     ],
                 ]
@@ -802,6 +892,7 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:5' => [
                             'category' => 'foo,bar',
+                            'category_array' => ['foo', 'bar'],
                         ],
                     ],
                 ]
@@ -819,6 +910,7 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:5' => [
                             'category' => 'foo,bar',
+                            'category_array' => ['foo', 'bar'],
                         ],
                     ],
                 ]
@@ -873,6 +965,7 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:5' => [
                             'category' => 'foo,bar',
+                            'category_array' => ['foo', 'bar'],
                         ],
                     ],
                 ]
@@ -896,6 +989,7 @@ class SearchIndexTest extends FeatureTestCase
                     'results' => [
                         'product:5' => [
                             'category' => 'foo,bar',
+                            'category_array' => ['foo', 'bar'],
                         ],
                     ]
                 ]
