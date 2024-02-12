@@ -2,6 +2,7 @@
 
 namespace Vladvildanov\PredisVl\Enum;
 
+use Predis\Command\Argument\Search\SchemaFields\GeoField;
 use Predis\Command\Argument\Search\SchemaFields\NumericField;
 use Predis\Command\Argument\Search\SchemaFields\TagField;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
@@ -16,6 +17,7 @@ enum SearchField
     case text;
     case numeric;
     case vector;
+    case geo;
 
     /**
      * Returns field class corresponding to given case.
@@ -29,6 +31,7 @@ enum SearchField
             self::text => TextField::class,
             self::numeric => NumericField::class,
             self::vector => VectorField::class,
+            self::geo => GeoField::class,
         };
     }
 }
