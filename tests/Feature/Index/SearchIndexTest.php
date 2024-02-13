@@ -2,12 +2,14 @@
 
 namespace Vladvildanov\PredisVl\Feature\Index;
 
+use SebastianBergmann\CodeCoverage\Report\Text;
 use Vladvildanov\PredisVl\Enum\Condition;
 use Vladvildanov\PredisVl\Enum\Logical;
 use Vladvildanov\PredisVl\Enum\Unit;
 use Vladvildanov\PredisVl\Feature\FeatureTestCase;
 use Predis\Client;
 use Vladvildanov\PredisVl\Index\SearchIndex;
+use Vladvildanov\PredisVl\Query\Filter\AggregateFilter;
 use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
 use Vladvildanov\PredisVl\Query\Filter\GeoFilter;
 use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
@@ -606,6 +608,102 @@ class SearchIndexTest extends FeatureTestCase
     }
 
     /**
+     * @dataProvider vectorAggregateFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     */
+    public function testVectorQueryHashWithAggregateFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+            ],
+            'fields' => [
+                'id' => [
+                    'type' => 'numeric',
+                ],
+                'categories' => [
+                    'type' => 'tag',
+                ],
+                'description' => [
+                    'type' => 'text',
+                ],
+                'description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine'
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            [
+                'id' => 1, 'categories' => 'foo', 'description' => 'foobar',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '2',
+            [
+                'id' => 2, 'categories' => 'bar', 'description' => 'barfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '3',
+            [
+                'id' => 3, 'categories' => 'foo', 'description' => 'foobar barfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+        $this->assertTrue($index->load(
+            '4',
+            [
+                'id' => 4, 'categories' => 'foo,bar', 'description' => 'barfoo bazfoo',
+                'description_embedding' => VectorHelper::toBytes([0.001, 0.002, 0.003])
+            ])
+        );
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'description_embedding',
+            null,
+            10,
+            false,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($expectedResponse['results'] as $key => $value) {
+            $this->assertSame(
+                $expectedResponse['results'][$key]['id'],
+                (int) $response['results'][$key]['id']
+            );
+            $this->assertSame(
+                $expectedResponse['results'][$key]['categories'],
+                $response['results'][$key]['categories']
+            );
+            $this->assertSame(
+                $expectedResponse['results'][$key]['description'],
+                $response['results'][$key]['description']
+            );
+        }
+    }
+
+    /**
      * @return void
      */
     public function testVectorQueryHashIndexReturnsCorrectFields(): void
@@ -1105,6 +1203,113 @@ class SearchIndexTest extends FeatureTestCase
             $this->assertSame(
                 $expectedResponse['results'][$key]['location'],
                 $decodedResponse['location'][0]
+            );
+        }
+    }
+
+    /**
+     * @dataProvider vectorAggregateFilterProvider
+     * @param FilterInterface|null $filter
+     * @param array $expectedResponse
+     * @return void
+     * @throws \JsonException
+     */
+    public function testVectorQueryJsonIndexWithAggregateFilter(
+        ?FilterInterface $filter,
+        array $expectedResponse
+    ): void {
+        $schema = [
+            'index' => [
+                'name' => 'products',
+                'prefix' => 'product:',
+                'storage_type' => 'json'
+            ],
+            'fields' => [
+                '$.id' => [
+                    'type' => 'numeric',
+                    'alias' => 'id',
+                ],
+                '$.categories' => [
+                    'type' => 'tag',
+                    'alias' => 'categories',
+                ],
+                '$.description' => [
+                    'type' => 'text',
+                    'alias' => 'description',
+                ],
+                '$.description_embedding' => [
+                    'type' => 'vector',
+                    'dims' => 3,
+                    'datatype' => 'float32',
+                    'algorithm' => 'flat',
+                    'distance_metric' => 'cosine',
+                    'alias' => 'vector_embedding',
+                ],
+            ],
+        ];
+
+        $index = new SearchIndex($this->client, $schema);
+        $this->assertEquals('OK', $index->create());
+
+        $this->assertTrue($index->load(
+            '1',
+            json_encode([
+                'id' => 1, 'categories' => 'foo', 'description' => 'foobar',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '2',
+            json_encode([
+                'id' => 2, 'categories' => 'bar', 'description' => 'barfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '3',
+            json_encode([
+                'id' => 3, 'categories' => 'foo', 'description' => 'foobar barfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+        $this->assertTrue($index->load(
+            '4',
+            json_encode([
+                'id' => 4, 'categories' => ['foo', 'bar'], 'description' => 'barfoo bazfoo',
+                'description_embedding' => [0.001, 0.002, 0.003],
+            ], JSON_THROW_ON_ERROR)
+        ));
+
+        $query = new VectorQuery(
+            [0.001, 0.002, 0.03],
+            'vector_embedding',
+            null,
+            10,
+            true,
+            2,
+            $filter
+        );
+
+        $response = $index->query($query);
+        $this->assertSame($expectedResponse['count'], $response['count']);
+
+        foreach ($response['results'] as $key => $value) {
+            $decodedResponse = json_decode($value['$'], true, 512, JSON_THROW_ON_ERROR);
+            $expectedCategories = (array_key_exists('categories_array', $expectedResponse['results'][$key]))
+                ? $expectedResponse['results'][$key]['categories_array']
+                : $expectedResponse['results'][$key]['categories'];
+
+            $this->assertSame(
+                $expectedResponse['results'][$key]['id'],
+                (int) $decodedResponse['id']
+            );
+            $this->assertSame(
+                $expectedCategories,
+                $decodedResponse['categories']
+            );
+            $this->assertSame(
+                $expectedResponse['results'][$key]['description'],
+                $decodedResponse['description']
             );
         }
     }
@@ -1724,6 +1929,158 @@ class SearchIndexTest extends FeatureTestCase
                         ],
                         'product:2' => [
                             'location' => '10.222,11.222',
+                        ],
+                    ]
+                ]
+            ],
+        ];
+    }
+
+    public static function vectorAggregateFilterProvider(): array
+    {
+        return [
+            'default' => [
+                null,
+                [
+                    'count' => 4,
+                    'results' => [
+                        'product:1' => [
+                            'id' => 1,
+                            'categories' => 'foo',
+                            'description' => 'foobar',
+                        ],
+                        'product:2' => [
+                            'id' => 2,
+                            'categories' => 'bar',
+                            'description' => 'barfoo',
+                        ],
+                        'product:3' => [
+                            'id' => 3,
+                            'categories' => 'foo',
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'id' => 4,
+                            'categories' => 'foo,bar',
+                            'categories_array' => ['foo', 'bar'],
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'with_numeric_and_tag' => [
+                new AggregateFilter([
+                    new NumericFilter('id', Condition::greaterThan, 1),
+                    new TagFilter('categories', Condition::equal, 'foo')
+                ]),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:3' => [
+                            'id' => 3,
+                            'categories' => 'foo',
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'id' => 4,
+                            'categories' => 'foo,bar',
+                            'categories_array' => ['foo', 'bar'],
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'with_numeric_or_tag' => [
+                new AggregateFilter([
+                    new NumericFilter('id', Condition::greaterThan, 2),
+                    new TagFilter('categories', Condition::equal, 'foo')
+                ], Logical::or),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:1' => [
+                            'id' => 1,
+                            'categories' => 'foo',
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'id' => 3,
+                            'categories' => 'foo',
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'id' => 4,
+                            'categories' => 'foo,bar',
+                            'categories_array' => ['foo', 'bar'],
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'with_tag_and_text' => [
+                new AggregateFilter([
+                    new TagFilter('categories', Condition::equal, 'foo'),
+                    new TextFilter('description', Condition::pattern, 'foo*')
+                ], Logical::and),
+                [
+                    'count' => 2,
+                    'results' => [
+                        'product:1' => [
+                            'id' => 1,
+                            'categories' => 'foo',
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'id' => 3,
+                            'categories' => 'foo',
+                            'description' => 'foobar barfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'with_tag_and_tag_or_text' => [
+                (new AggregateFilter([
+                    new TagFilter('categories', Condition::equal, 'foo'),
+                    new TagFilter('categories', Condition::equal, 'bar'),
+                ]))->or(
+                    new TextFilter('description', Condition::pattern, '*bar')
+                ),
+                [
+                    'count' => 3,
+                    'results' => [
+                        'product:1' => [
+                            'id' => 1,
+                            'categories' => 'foo',
+                            'description' => 'foobar',
+                        ],
+                        'product:3' => [
+                            'id' => 3,
+                            'categories' => 'foo',
+                            'description' => 'foobar barfoo',
+                        ],
+                        'product:4' => [
+                            'id' => 4,
+                            'categories' => 'foo,bar',
+                            'categories_array' => ['foo', 'bar'],
+                            'description' => 'barfoo bazfoo',
+                        ],
+                    ]
+                ]
+            ],
+            'with_numeric_and_numeric_and_tag' => [
+                (new AggregateFilter([
+                    new NumericFilter('id', Condition::greaterThanOrEqual, 1),
+                    new NumericFilter('id', Condition::lowerThanOrEqual, 3),
+                ]))->and(
+                    new TagFilter('categories', Condition::equal, 'bar')
+                ),
+                [
+                    'count' => 1,
+                    'results' => [
+                        'product:2' => [
+                            'id' => 2,
+                            'categories' => 'bar',
+                            'description' => 'barfoo',
                         ],
                     ]
                 ]

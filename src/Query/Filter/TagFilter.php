@@ -24,7 +24,6 @@ class TagFilter extends AbstractFilter
             'tags' => 'array',
         ])] protected mixed $value
     ) {
-        parent::__construct($this->fieldName, $this->condition, $this->value);
     }
 
     /**
