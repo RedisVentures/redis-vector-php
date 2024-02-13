@@ -13,7 +13,7 @@ full-text search, and geo-spatial search.
 
 ### Installation ###
 
-For now PredisVL isn't available ar packagist.org, but you can still install it via Composer by specifying [GitHub 
+For now PredisVL isn't available at packagist.org, but you can still install it via Composer by specifying [GitHub 
 repository](https://github.com/vladvildanov/predis-vl) in your composer.json file.
 
 ```shell
@@ -86,7 +86,7 @@ $index = new SearchIndex($client, $schema);
 // Creates index in the Redis
 $index->create();
 ```
-3. Load/fetch your data from index. If you have a hash index data should be load as key-value pairs
+3. Load/fetch your data from index. If you have a hash index data should be loaded as key-value pairs
 , for json type data loads as json string.
 ```php
 $data = ['id' => '1', 'count' => 10, 'id_embeddings' => VectorHelper::toBytes([0.000001, 0.000002, 0.000003])];
