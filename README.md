@@ -27,7 +27,7 @@ repository](https://github.com/RedisVentures/redis-vector-php) in your composer.
 }
 ```
 ```shell
-composer install redis-ventures/redis-vl
+composer install redis-ventures/redisvl
 ```
 
 ### Setting up Redis ####

@@ -1,5 +1,5 @@
 {
-    "name": "redis-ventures/redis-vl",
+    "name": "redis-ventures/redisvl",
     "description": "Redis Vector Library (RedisVL) enables Redis as a real-time database for LLM applications, based on Predis PHP client",
     "type": "library",
     "license": "MIT",
