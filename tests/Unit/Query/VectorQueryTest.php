@@ -1,16 +1,16 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit\Query;
+namespace RedisVentures\RedisVl\Unit\Query;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Predis\Command\Argument\Search\SearchArguments;
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\FactoryInterface;
-use RedisVentures\PredisVl\Query\Filter\FilterInterface;
-use RedisVentures\PredisVl\Query\Filter\TagFilter;
-use RedisVentures\PredisVl\Query\VectorQuery;
-use RedisVentures\PredisVl\VectorHelper;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\FactoryInterface;
+use RedisVentures\RedisVl\Query\Filter\FilterInterface;
+use RedisVentures\RedisVl\Query\Filter\TagFilter;
+use RedisVentures\RedisVl\Query\VectorQuery;
+use RedisVentures\RedisVl\VectorHelper;
 
 class VectorQueryTest extends TestCase
 {

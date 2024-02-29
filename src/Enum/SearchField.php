@@ -1,13 +1,13 @@
 <?php
 
-namespace RedisVentures\PredisVl\Enum;
+namespace RedisVentures\RedisVl\Enum;
 
 use Predis\Command\Argument\Search\SchemaFields\GeoField;
 use Predis\Command\Argument\Search\SchemaFields\NumericField;
 use Predis\Command\Argument\Search\SchemaFields\TagField;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
 use Predis\Command\Argument\Search\SchemaFields\VectorField;
-use RedisVentures\PredisVl\Enum\Traits\EnumNames;
+use RedisVentures\RedisVl\Enum\Traits\EnumNames;
 
 enum SearchField
 {

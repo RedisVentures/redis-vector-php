@@ -1,9 +1,9 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit;
+namespace RedisVentures\RedisVl\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RedisVentures\PredisVl\VectorHelper;
+use RedisVentures\RedisVl\VectorHelper;
 
 class VectorHelperTest extends TestCase
 {

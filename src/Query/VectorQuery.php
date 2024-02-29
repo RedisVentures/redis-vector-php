@@ -1,11 +1,11 @@
 <?php
 
-namespace RedisVentures\PredisVl\Query;
+namespace RedisVentures\RedisVl\Query;
 
 use Predis\Command\Argument\Search\SearchArguments;
-use RedisVentures\PredisVl\FactoryInterface;
-use RedisVentures\PredisVl\Query\Filter\FilterInterface;
-use RedisVentures\PredisVl\VectorHelper;
+use RedisVentures\RedisVl\FactoryInterface;
+use RedisVentures\RedisVl\Query\Filter\FilterInterface;
+use RedisVentures\RedisVl\VectorHelper;
 
 class VectorQuery extends AbstractQuery
 {

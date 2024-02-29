@@ -1,21 +1,21 @@
 <?php
 
-namespace RedisVentures\PredisVl\Feature\Index;
+namespace RedisVentures\RedisVl\Feature\Index;
 
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\Enum\Logical;
-use RedisVentures\PredisVl\Enum\Unit;
-use RedisVentures\PredisVl\Feature\FeatureTestCase;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\Enum\Logical;
+use RedisVentures\RedisVl\Enum\Unit;
+use RedisVentures\RedisVl\Feature\FeatureTestCase;
 use Predis\Client;
-use RedisVentures\PredisVl\Index\SearchIndex;
-use RedisVentures\PredisVl\Query\Filter\AggregateFilter;
-use RedisVentures\PredisVl\Query\Filter\FilterInterface;
-use RedisVentures\PredisVl\Query\Filter\GeoFilter;
-use RedisVentures\PredisVl\Query\Filter\NumericFilter;
-use RedisVentures\PredisVl\Query\Filter\TagFilter;
-use RedisVentures\PredisVl\Query\Filter\TextFilter;
-use RedisVentures\PredisVl\Query\VectorQuery;
-use RedisVentures\PredisVl\VectorHelper;
+use RedisVentures\RedisVl\Index\SearchIndex;
+use RedisVentures\RedisVl\Query\Filter\AggregateFilter;
+use RedisVentures\RedisVl\Query\Filter\FilterInterface;
+use RedisVentures\RedisVl\Query\Filter\GeoFilter;
+use RedisVentures\RedisVl\Query\Filter\NumericFilter;
+use RedisVentures\RedisVl\Query\Filter\TagFilter;
+use RedisVentures\RedisVl\Query\Filter\TextFilter;
+use RedisVentures\RedisVl\Query\VectorQuery;
+use RedisVentures\RedisVl\VectorHelper;
 
 class SearchIndexTest extends FeatureTestCase
 {

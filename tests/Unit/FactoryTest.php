@@ -1,11 +1,11 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit;
+namespace RedisVentures\RedisVl\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Predis\Command\Argument\Search\CreateArguments;
 use Predis\Command\Argument\Search\SearchArguments;
-use RedisVentures\PredisVl\Factory;
+use RedisVentures\RedisVl\Factory;
 
 class FactoryTest extends TestCase
 {

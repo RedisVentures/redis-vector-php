@@ -1,6 +1,6 @@
 ## Introduction ##
 
-The Predis Vector Library (PredisVL) is a PHP client for AI applications leveraging Redis.
+The Redis Vector Library (RedisVL) is a PHP client for AI applications leveraging Redis.
 
 Designed for:
 - Vector similarity search
@@ -13,21 +13,21 @@ full-text search, and geo-spatial search.
 
 ### Installation ###
 
-For now PredisVL isn't available at packagist.org, but you can still install it via Composer by specifying [GitHub 
-repository](https://github.com/RedisVentures/predis-vl) in your composer.json file.
+For now RedisVL isn't available at packagist.org, but you can still install it via Composer by specifying [GitHub 
+repository](https://github.com/RedisVentures/redis-vector-php) in your composer.json file.
 
 ```shell
 {
     "repositories": [
         {
             "type": "github",
-            "url": "https://github.com/RedisVentures/predis-vl.git"
+            "url": "https://github.com/RedisVentures/redis-vector-php.git"
         }
     ]
 }
 ```
 ```shell
-composer install redis-ventures/predis-vl
+composer install redis-ventures/redis-vl
 ```
 
 ### Setting up Redis ####
@@ -78,7 +78,7 @@ $schema = [
 2. Create a SearchIndex object with an input schema and client connection to be able to interact with your Redis index
 ```php
 use Predis\Client;
-use RedisVentures\PredisVl\Index\SearchIndex;
+use RedisVentures\RedisVl\Index\SearchIndex;
 
 $client = new Client();
 $index = new SearchIndex($client, $schema);
@@ -104,7 +104,7 @@ Define queries and perform advanced search over your indices, including combinat
 
 **VectorQuery** - flexible vector-similarity semantic search with customizable filters
 ```php
-use RedisVentures\PredisVl\Query\VectorQuery;
+use RedisVentures\RedisVl\Query\VectorQuery;
 
 $query = new VectorQuery(
     [0.001, 0.002, 0.03],
@@ -119,8 +119,8 @@ $results = $index->query($query);
 
 Incorporate complex metadata filters on your queries:
 ```php
-use RedisVentures\PredisVl\Query\Filter\TagFilter;
-use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\RedisVl\Query\Filter\TagFilter;
+use RedisVentures\RedisVl\Enum\Condition;
 
 $filter = new TagFilter(
     'categories',
@@ -150,8 +150,8 @@ Numeric filters could be applied to numeric fields.
 Supports variety of conditions applicable for scalar types (==, !=, <, >, <=, >=).
 More information [here](https://redis.io/docs/interact/search-and-query/query/range/).
 ```php
-use RedisVentures\PredisVl\Query\Filter\NumericFilter;
-use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\RedisVl\Query\Filter\NumericFilter;
+use RedisVentures\RedisVl\Enum\Condition;
 
 $equal = new NumericFilter('numeric', Condition::equal, 10);
 $notEqual = new NumericFilter('numeric', Condition::notEqual, 10);
@@ -167,9 +167,9 @@ Tag filters could be applied to tag fields. Single or multiple values can be pro
 equality conditions (==, !==), for multiple tags additional conjunction (AND, OR) could be specified.
 More information [here](https://redis.io/docs/interact/search-and-query/advanced-concepts/tags/)
 ```php
-use RedisVentures\PredisVl\Query\Filter\TagFilter;
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\Enum\Logical;
+use RedisVentures\RedisVl\Query\Filter\TagFilter;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\Enum\Logical;
 
 $singleTag = new TagFilter('tag', Condition::equal, 'value')
 $multipleTags = new TagFilter('tag', Condition::notEqual, [
@@ -184,8 +184,8 @@ Text filters could be applied to text fields. Values can be provided as a single
 specified condition. Empty value corresponds to all values (*). 
 More information [here](https://redis.io/docs/interact/search-and-query/query/full-text/)
 ```php
-use RedisVentures\PredisVl\Query\Filter\TextFilter;
-use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\RedisVl\Query\Filter\TextFilter;
+use RedisVentures\RedisVl\Enum\Condition;
 
 $single = new TextFilter('text', Condition::equal, 'foo');
 
@@ -205,9 +205,9 @@ Geo filters could be applied to geo fields. Supports only equality conditions,
 value should be specified as specific-shape array. 
 More information [here](https://redis.io/docs/interact/search-and-query/query/geo-spatial/)
 ```php
-use RedisVentures\PredisVl\Query\Filter\GeoFilter;
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\Enum\Unit;
+use RedisVentures\RedisVl\Query\Filter\GeoFilter;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\Enum\Unit;
 
 $geo = new GeoFilter('geo', Condition::equal, [
     'lon' => 10.111,
@@ -223,11 +223,11 @@ To apply multiple filters to a single query use AggregateFilter.
 If there's the same logical operator that should be applied for each filter you can pass values in constructor,  
 if you need a specific combination use `and()` and `or()` methods to create combined filter.
 ```php
-use RedisVentures\PredisVl\Query\Filter\AggregateFilter;
-use RedisVentures\PredisVl\Query\Filter\TextFilter;
-use RedisVentures\PredisVl\Query\Filter\NumericFilter;
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\Enum\Logical;
+use RedisVentures\RedisVl\Query\Filter\AggregateFilter;
+use RedisVentures\RedisVl\Query\Filter\TextFilter;
+use RedisVentures\RedisVl\Query\Filter\NumericFilter;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\Enum\Logical;
 
 $aggregate = new AggregateFilter([
     new TextFilter('text', Condition::equal, 'value'),
@@ -254,7 +254,7 @@ The only required option is your API key specified as environment variable or co
 
 ### OpenAI ###
 ```php
-use RedisVentures\PredisVl\Vectorizer\Factory;
+use RedisVentures\RedisVl\Vectorizer\Factory;
 
 putenv('OPENAI_API_TOKEN=your_token');
 
@@ -274,7 +274,7 @@ When you perform vector queries against Redis or load hash data into index that 
 your vector should be represented as a blob string. VectorHelper allows you to create
 blob representation from your vector represented as array of floats.
 ```php
-use RedisVentures\PredisVl\VectorHelper;
+use RedisVentures\RedisVl\VectorHelper;
 
 $blobVector = VectorHelper::toBytes([0.001, 0.002, 0.003]);
 ```

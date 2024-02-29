@@ -1,16 +1,16 @@
 <?php
 
-namespace RedisVentures\PredisVl\Index;
+namespace RedisVentures\RedisVl\Index;
 
 use Exception;
 use Predis\Client;
 use Predis\Command\Argument\Search\SchemaFields\VectorField;
 use Predis\Response\ServerException;
-use RedisVentures\PredisVl\Enum\SearchField;
-use RedisVentures\PredisVl\Enum\StorageType;
-use RedisVentures\PredisVl\Factory;
-use RedisVentures\PredisVl\FactoryInterface;
-use RedisVentures\PredisVl\Query\QueryInterface;
+use RedisVentures\RedisVl\Enum\SearchField;
+use RedisVentures\RedisVl\Enum\StorageType;
+use RedisVentures\RedisVl\Factory;
+use RedisVentures\RedisVl\FactoryInterface;
+use RedisVentures\RedisVl\Query\QueryInterface;
 
 class SearchIndex implements IndexInterface
 {

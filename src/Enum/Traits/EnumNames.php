@@ -1,6 +1,6 @@
 <?php
 
-namespace RedisVentures\PredisVl\Enum\Traits;
+namespace RedisVentures\RedisVl\Enum\Traits;
 
 trait EnumNames
 {

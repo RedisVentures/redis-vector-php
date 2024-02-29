@@ -1,6 +1,6 @@
 <?php
 
-namespace RedisVentures\PredisVl\Vectorizer;
+namespace RedisVentures\RedisVl\Vectorizer;
 
 use Exception;
 

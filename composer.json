@@ -1,6 +1,6 @@
 {
-    "name": "redis-ventures/predis-vl",
-    "description": "Predis Vector Library (PredisVL) enables Redis as a real-time database for LLM applications, based on Predis PHP client",
+    "name": "redis-ventures/redis-vl",
+    "description": "Redis Vector Library (RedisVL) enables Redis as a real-time database for LLM applications, based on Predis PHP client",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "RedisVentures\\PredisVl\\": "src/"
+            "RedisVentures\\RedisVl\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "RedisVentures\\PredisVl\\": "tests/"
+            "RedisVentures\\RedisVl\\": "tests/"
         }
     },
     "authors": [
