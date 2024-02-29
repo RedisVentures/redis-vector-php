@@ -12,20 +12,6 @@ full-text search, and geo-spatial search.
 ## Getting started ##
 
 ### Installation ###
-
-For now RedisVL isn't available at packagist.org, but you can still install it via Composer by specifying [GitHub 
-repository](https://github.com/RedisVentures/redis-vector-php) in your composer.json file.
-
-```shell
-{
-    "repositories": [
-        {
-            "type": "github",
-            "url": "https://github.com/RedisVentures/redis-vector-php.git"
-        }
-    ]
-}
-```
 ```shell
 composer install redis-ventures/redisvl
 ```
