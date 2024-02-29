@@ -1,11 +1,11 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Query;
+namespace RedisVentures\PredisVl\Query;
 
 use Predis\Command\Argument\Search\SearchArguments;
-use Vladvildanov\PredisVl\Factory;
-use Vladvildanov\PredisVl\FactoryInterface;
-use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
+use RedisVentures\PredisVl\Factory;
+use RedisVentures\PredisVl\FactoryInterface;
+use RedisVentures\PredisVl\Query\Filter\FilterInterface;
 
 abstract class AbstractQuery implements QueryInterface
 {

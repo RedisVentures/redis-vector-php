@@ -1,11 +1,11 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Vectorizer;
+namespace RedisVentures\PredisVl\Unit\Vectorizer;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Vladvildanov\PredisVl\Vectorizer\Factory;
-use Vladvildanov\PredisVl\Vectorizer\OpenAIVectorizer;
+use RedisVentures\PredisVl\Vectorizer\Factory;
+use RedisVentures\PredisVl\Vectorizer\OpenAIVectorizer;
 
 class FactoryTest extends TestCase
 {

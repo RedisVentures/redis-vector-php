@@ -1,9 +1,9 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Query\Filter;
+namespace RedisVentures\PredisVl\Query\Filter;
 
 use Exception;
-use Vladvildanov\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Condition;
 
 class NumericFilter extends AbstractFilter
 {

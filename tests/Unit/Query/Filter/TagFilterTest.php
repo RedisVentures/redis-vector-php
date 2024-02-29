@@ -1,11 +1,11 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\PredisVl\Unit\Query\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Enum\Logical;
-use Vladvildanov\PredisVl\Query\Filter\TagFilter;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Logical;
+use RedisVentures\PredisVl\Query\Filter\TagFilter;
 
 class TagFilterTest extends TestCase
 {

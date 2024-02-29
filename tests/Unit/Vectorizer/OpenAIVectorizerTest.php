@@ -1,13 +1,13 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Vectorizer;
+namespace RedisVentures\PredisVl\Unit\Vectorizer;
 
 use Exception;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Vladvildanov\PredisVl\Vectorizer\OpenAIVectorizer;
+use RedisVentures\PredisVl\Vectorizer\OpenAIVectorizer;
 
 class OpenAIVectorizerTest extends TestCase
 {

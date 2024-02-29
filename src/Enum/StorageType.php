@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Enum;
+namespace RedisVentures\PredisVl\Enum;
 
 enum StorageType: string
 {

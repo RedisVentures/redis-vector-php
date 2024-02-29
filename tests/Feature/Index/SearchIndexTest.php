@@ -1,22 +1,21 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Feature\Index;
+namespace RedisVentures\PredisVl\Feature\Index;
 
-use SebastianBergmann\CodeCoverage\Report\Text;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Enum\Logical;
-use Vladvildanov\PredisVl\Enum\Unit;
-use Vladvildanov\PredisVl\Feature\FeatureTestCase;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Logical;
+use RedisVentures\PredisVl\Enum\Unit;
+use RedisVentures\PredisVl\Feature\FeatureTestCase;
 use Predis\Client;
-use Vladvildanov\PredisVl\Index\SearchIndex;
-use Vladvildanov\PredisVl\Query\Filter\AggregateFilter;
-use Vladvildanov\PredisVl\Query\Filter\FilterInterface;
-use Vladvildanov\PredisVl\Query\Filter\GeoFilter;
-use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
-use Vladvildanov\PredisVl\Query\Filter\TagFilter;
-use Vladvildanov\PredisVl\Query\Filter\TextFilter;
-use Vladvildanov\PredisVl\Query\VectorQuery;
-use Vladvildanov\PredisVl\VectorHelper;
+use RedisVentures\PredisVl\Index\SearchIndex;
+use RedisVentures\PredisVl\Query\Filter\AggregateFilter;
+use RedisVentures\PredisVl\Query\Filter\FilterInterface;
+use RedisVentures\PredisVl\Query\Filter\GeoFilter;
+use RedisVentures\PredisVl\Query\Filter\NumericFilter;
+use RedisVentures\PredisVl\Query\Filter\TagFilter;
+use RedisVentures\PredisVl\Query\Filter\TextFilter;
+use RedisVentures\PredisVl\Query\VectorQuery;
+use RedisVentures\PredisVl\VectorHelper;
 
 class SearchIndexTest extends FeatureTestCase
 {

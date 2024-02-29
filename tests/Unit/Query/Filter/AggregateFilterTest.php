@@ -1,16 +1,16 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\PredisVl\Unit\Query\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Enum\Logical;
-use Vladvildanov\PredisVl\Enum\Unit;
-use Vladvildanov\PredisVl\Query\Filter\AggregateFilter;
-use Vladvildanov\PredisVl\Query\Filter\GeoFilter;
-use Vladvildanov\PredisVl\Query\Filter\NumericFilter;
-use Vladvildanov\PredisVl\Query\Filter\TagFilter;
-use Vladvildanov\PredisVl\Query\Filter\TextFilter;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Logical;
+use RedisVentures\PredisVl\Enum\Unit;
+use RedisVentures\PredisVl\Query\Filter\AggregateFilter;
+use RedisVentures\PredisVl\Query\Filter\GeoFilter;
+use RedisVentures\PredisVl\Query\Filter\NumericFilter;
+use RedisVentures\PredisVl\Query\Filter\TagFilter;
+use RedisVentures\PredisVl\Query\Filter\TextFilter;
 
 class AggregateFilterTest extends TestCase
 {

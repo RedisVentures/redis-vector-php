@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Feature;
+namespace RedisVentures\PredisVl\Feature;
 
 use PHPUnit\Framework\TestCase;
 use Predis\Client;
