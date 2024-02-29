@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Enum;
+namespace RedisVentures\PredisVl\Unit\Enum;
 
 use PHPUnit\Framework\TestCase;
 use Predis\Command\Argument\Search\SchemaFields\GeoField;
@@ -8,7 +8,7 @@ use Predis\Command\Argument\Search\SchemaFields\NumericField;
 use Predis\Command\Argument\Search\SchemaFields\TagField;
 use Predis\Command\Argument\Search\SchemaFields\TextField;
 use Predis\Command\Argument\Search\SchemaFields\VectorField;
-use Vladvildanov\PredisVl\Enum\SearchField;
+use RedisVentures\PredisVl\Enum\SearchField;
 
 class SearchFieldTest extends TestCase
 {

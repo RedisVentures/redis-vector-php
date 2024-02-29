@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl;
+namespace RedisVentures\PredisVl;
 
 use Predis\Command\Argument\Search\CreateArguments;
 use Predis\Command\Argument\Search\SearchArguments;

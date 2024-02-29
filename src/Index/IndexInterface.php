@@ -1,8 +1,8 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Index;
+namespace RedisVentures\PredisVl\Index;
 
-use Vladvildanov\PredisVl\Query\QueryInterface;
+use RedisVentures\PredisVl\Query\QueryInterface;
 
 interface IndexInterface
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\PredisVl\Unit\Query\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Query\Filter\TextFilter;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Query\Filter\TextFilter;
 
 class TextFilterTest extends TestCase
 {

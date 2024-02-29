@@ -1,11 +1,11 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\PredisVl\Unit\Query\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Enum\Unit;
-use Vladvildanov\PredisVl\Query\Filter\GeoFilter;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Unit;
+use RedisVentures\PredisVl\Query\Filter\GeoFilter;
 
 class GeoFilterTest extends TestCase
 {

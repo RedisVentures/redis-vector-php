@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Vectorizer;
+namespace RedisVentures\PredisVl\Vectorizer;
 
 use Exception;
 use GuzzleHttp\Client;

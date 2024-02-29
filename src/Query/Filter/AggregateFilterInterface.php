@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Query\Filter;
+namespace RedisVentures\PredisVl\Query\Filter;
 
 interface AggregateFilterInterface extends FilterInterface
 {

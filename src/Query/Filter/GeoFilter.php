@@ -1,10 +1,10 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Query\Filter;
+namespace RedisVentures\PredisVl\Query\Filter;
 
 use JetBrains\PhpStorm\ArrayShape;
-use Vladvildanov\PredisVl\Enum\Condition;
-use Vladvildanov\PredisVl\Enum\Unit;
+use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\PredisVl\Enum\Unit;
 
 class GeoFilter extends AbstractFilter
 {

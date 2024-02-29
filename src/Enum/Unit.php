@@ -1,8 +1,8 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Enum;
+namespace RedisVentures\PredisVl\Enum;
 
-use Vladvildanov\PredisVl\Enum\Traits\EnumNames;
+use RedisVentures\PredisVl\Enum\Traits\EnumNames;
 
 enum Unit: string
 {

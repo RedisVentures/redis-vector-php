@@ -1,6 +1,6 @@
 <?php
 
-namespace Vladvildanov\PredisVl;
+namespace RedisVentures\PredisVl;
 
 class VectorHelper
 {

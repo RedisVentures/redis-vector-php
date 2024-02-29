@@ -1,8 +1,8 @@
 <?php
 
-namespace Vladvildanov\PredisVl\Query\Filter;
+namespace RedisVentures\PredisVl\Query\Filter;
 
-use Vladvildanov\PredisVl\Enum\Logical;
+use RedisVentures\PredisVl\Enum\Logical;
 
 class AggregateFilter extends AbstractFilter implements AggregateFilterInterface
 {
