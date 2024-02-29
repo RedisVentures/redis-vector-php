@@ -1,6 +1,6 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit\Index;
+namespace RedisVentures\RedisVl\Unit\Index;
 
 use Exception;
 use Mockery;
@@ -12,9 +12,9 @@ use Predis\Command\Argument\Search\SchemaFields\VectorField;
 use Predis\Command\Argument\Search\SearchArguments;
 use Predis\Response\ServerException;
 use Predis\Response\Status;
-use RedisVentures\PredisVl\FactoryInterface;
-use RedisVentures\PredisVl\Index\SearchIndex;
-use RedisVentures\PredisVl\Query\VectorQuery;
+use RedisVentures\RedisVl\FactoryInterface;
+use RedisVentures\RedisVl\Index\SearchIndex;
+use RedisVentures\RedisVl\Query\VectorQuery;
 
 class SearchIndexTest extends TestCase
 {

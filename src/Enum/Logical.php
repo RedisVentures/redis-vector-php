@@ -1,8 +1,8 @@
 <?php
 
-namespace RedisVentures\PredisVl\Enum;
+namespace RedisVentures\RedisVl\Enum;
 
-use RedisVentures\PredisVl\Enum\Traits\EnumNames;
+use RedisVentures\RedisVl\Enum\Traits\EnumNames;
 
 enum Logical: string
 {

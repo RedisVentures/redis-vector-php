@@ -1,8 +1,8 @@
 <?php
 
-namespace RedisVentures\PredisVl\Query\Filter;
+namespace RedisVentures\RedisVl\Query\Filter;
 
-use RedisVentures\PredisVl\Enum\Condition;
+use RedisVentures\RedisVl\Enum\Condition;
 
 class TextFilter extends AbstractFilter
 {

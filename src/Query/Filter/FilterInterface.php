@@ -1,6 +1,6 @@
 <?php
 
-namespace RedisVentures\PredisVl\Query\Filter;
+namespace RedisVentures\RedisVl\Query\Filter;
 
 interface FilterInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\RedisVl\Unit\Query\Filter;
 
 use PHPUnit\Framework\TestCase;
-use RedisVentures\PredisVl\Query\Filter\FilterInterface;
+use RedisVentures\RedisVl\Query\Filter\FilterInterface;
 
 class AbstractFilter extends TestCase
 {
@@ -14,7 +14,7 @@ class AbstractFilter extends TestCase
 
     protected function setUp(): void
     {
-        $this->testClass = new class() extends \RedisVentures\PredisVl\Query\Filter\AbstractFilter
+        $this->testClass = new class() extends \RedisVentures\RedisVl\Query\Filter\AbstractFilter
         {
             public function toExpression(): string
             {

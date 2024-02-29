@@ -1,11 +1,11 @@
 <?php
 
-namespace RedisVentures\PredisVl\Unit\Query\Filter;
+namespace RedisVentures\RedisVl\Unit\Query\Filter;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use RedisVentures\PredisVl\Enum\Condition;
-use RedisVentures\PredisVl\Query\Filter\NumericFilter;
+use RedisVentures\RedisVl\Enum\Condition;
+use RedisVentures\RedisVl\Query\Filter\NumericFilter;
 
 class NumericFilterTest extends TestCase
 {

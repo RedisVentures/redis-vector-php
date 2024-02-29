@@ -1,9 +1,9 @@
 <?php
 
-namespace RedisVentures\PredisVl\Query;
+namespace RedisVentures\RedisVl\Query;
 
 use Predis\Command\Argument\Search\SearchArguments;
-use RedisVentures\PredisVl\Query\Filter\FilterInterface;
+use RedisVentures\RedisVl\Query\Filter\FilterInterface;
 
 interface QueryInterface
 {
